@@ -1,0 +1,25 @@
+### 1. ĐĂNG KÝ TÀI KHOẢN (REGISTER)
+# Đặt trỏ chuột ở dòng POST và bấm nút "Send Request" hiện lên ở ngay trên nó
+POST http://localhost:5000/api/users/register
+Content-Type: application/json
+
+{
+    "name": "Hành Khách Số 1",
+    "email": "khachhang@gmail.com",
+    "password": "mypassword123"
+}
+
+### 2. ĐĂNG NHẬP (LOGIN)
+# Chạy xong, nhìn sang cột bên phải để copy cái chuỗi "token" dài ngoằng nhé
+POST http://localhost:5000/api/users/login
+Content-Type: application/json
+
+{
+    "email": "khachhang@gmail.com",
+    "password": "mypassword123"
+}
+
+### 3. XEM PROFILE CÁ NHÂN (GET PROFILE)
+# Xóa dòng chữ <DÁN_TOKEN_CỦA_BẠN_VÀO_ĐÂY> đi và dán cái token bạn vừa copy ở bước 2 vào
+GET http://localhost:5000/api/users/profile
+Authorization: Bearer <DÁN_TOKEN_CỦA_BẠN_VÀO_ĐÂY>
