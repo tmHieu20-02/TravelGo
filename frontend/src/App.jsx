@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import DestinationsPage from './pages/DestinationsPage'; // Import trang mới
 import CountryDetail from './pages/CountryDetail';
 import AdminCountryPage from './pages/AdminCountryPage';
+import AdminBookingPage from './pages/AdminBookingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Navbar from './components/Navbar';
@@ -22,6 +23,12 @@ function App() {
         <Route path="/admin/countries" element={
           <ProtectedRoute requireAdmin={true}>
             <AdminCountryPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin/bookings" element={
+          <ProtectedRoute requireAdmin={true}>
+            <AdminBookingPage />
           </ProtectedRoute>
         } />
         

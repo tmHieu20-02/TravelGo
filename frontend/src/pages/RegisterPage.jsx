@@ -25,7 +25,7 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="page-auth-container bg-[url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop')]">
+        <div className="page-auth-container bg-[url('/auth-bg.jpg')]">
             <div className="auth-bg-overlay"></div>
 
             <div className="auth-header-wrapper">

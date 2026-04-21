@@ -77,7 +77,7 @@ const HomePage = () => {
                             {[1, 2, 3].map(i => <div key={i} className="h-80 bg-white rounded-3xl animate-shimmer"></div>)}
                         </div>
                     ) : (
-                        <CountryList countries={countries.slice(0, 3)} />
+                        <CountryList countries={countries.slice(0, 8)} />
                     )}
                 </div>
             </section>
@@ -157,7 +157,7 @@ const HomePage = () => {
                         <div>
                             <h4 className="font-black text-gray-900 mb-6 uppercase tracking-widest text-sm">Liên Hệ</h4>
                             <ul className="space-y-4 text-gray-400 font-medium italic">
-                                <li className="flex items-center gap-3"><MapPin className="w-5 h-5 text-indigo-500" /> 123 Đường Du Lịch, Quận 1, TPHCM</li>
+                                <li className="flex items-center gap-3"><MapPin className="w-5 h-5 text-indigo-500" /> 254/1, Lê Văn Thọ, Phường 11, Gò Vấp, TP.HCM</li>
                                 <li className="flex items-center gap-3"><Users className="w-5 h-5 text-indigo-500" /> +84 123 456 789</li>
                                 <li className="flex items-center gap-3 italic underline text-indigo-600 outline-none hover:text-indigo-800">Support@travelgo.com</li>
                             </ul>

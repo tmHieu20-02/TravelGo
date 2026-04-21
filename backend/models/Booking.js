@@ -17,7 +17,7 @@ const Booking = sequelize.define('Booking', {
     },
     tourDate: {
         type: DataTypes.DATEONLY,
-        allowNull: true // Tạm thời allow null nếu FE chưa gửi đúng chuẩn
+        allowNull: true
     },
     guests: {
         type: DataTypes.INTEGER,
@@ -27,6 +27,14 @@ const Booking = sequelize.define('Booking', {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
+    phone: {
+        type: DataTypes.STRING,
+        allowNull: false // Bắt buộc phải có số điện thoại để liên hệ
+    },
+    bookingCode: {
+        type: DataTypes.STRING,
+        unique: true // Mã định danh duy nhất cho từng đơn hàng (VD: TG-12345)
+    },
     notes: {
         type: DataTypes.TEXT,
         allowNull: true
@@ -34,6 +42,18 @@ const Booking = sequelize.define('Booking', {
     status: {
         type: DataTypes.STRING,
         defaultValue: 'pending' // pending, confirmed, cancelled
+    },
+    paymentStatus: {
+        type: DataTypes.STRING,
+        defaultValue: 'unpaid' // unpaid, deposited, paid
+    }
+}, {
+    hooks: {
+        beforeCreate: (booking) => {
+            // Tự động tạo mã booking ngẫu nhiên khi tạo đơn mới
+            const randomStr = Math.random().toString(36).substring(2, 7).toUpperCase();
+            booking.bookingCode = `TG-${randomStr}`;
+        }
     }
 });
 

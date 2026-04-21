@@ -43,8 +43,8 @@ body {
     /* ==== LAYOUTS & PAGES ==== */
     .page-admin-container { @apply min-h-screen bg-slate-50 py-10 px-4 md:px-10; }
     .page-home-container { @apply min-h-screen bg-white; }
-    .page-auth-container { @apply min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-cover bg-center; }
-    .auth-bg-overlay { @apply absolute inset-0 bg-black/50; }
+    .page-auth-container { @apply min-h-screen relative bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-cover bg-center; }
+    .auth-bg-overlay { @apply absolute inset-0 bg-black/50 w-full h-full; }
     
     /* ==== NAVBAR ==== */
     .nav-container { @apply bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm; }

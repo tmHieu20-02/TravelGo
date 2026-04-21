@@ -15,8 +15,10 @@ const CountryDetail = () => {
     // 2. STATE ĐẶT TOUR (Thêm mới)
     const [guests, setGuests] = useState(1);
     const [tourDate, setTourDate] = useState('');
+    const [phone, setPhone] = useState(''); // Thêm state số điện thoại
     const [isBooking, setIsBooking] = useState(false);
     const [bookingMessage, setBookingMessage] = useState(null);
+    const [bookedData, setBookedData] = useState(null); // Lưu thông tin sau khi đặt thành công
 
     // FETCH DATA
     useEffect(() => {
@@ -37,8 +39,8 @@ const CountryDetail = () => {
 
     // 3. HÀM XỬ LÝ ĐẶT TOUR (Thêm mới)
     const handleBooking = async () => {
-        if (!tourDate) {
-            alert("Vui lòng chọn ngày khởi hành để tiếp tục!");
+        if (!tourDate || !phone) {
+            alert("Vui lòng nhập đầy đủ Ngày khởi hành và Số điện thoại!");
             return;
         }
 
@@ -57,11 +59,11 @@ const CountryDetail = () => {
             const response = await api.post('/bookings', {
                 countryId: country.id,
                 tourDate: tourDate,
-                guests: guests
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
+                guests: guests,
+                phone: phone // Gửi số điện thoại lên Backend
             });
 
+            setBookedData(response.data.booking);
             setBookingMessage({ type: 'success', text: response.data.message || "🎉 Đặt tour thành công!" });
         } catch (error) {
             setBookingMessage({ type: 'error', text: error.response?.data?.message || 'Lỗi hệ thống khi đặt tour!' });
@@ -223,6 +225,20 @@ const CountryDetail = () => {
                                         </div>
                                     </div>
 
+                                    {/* Số điện thoại */}
+                                    <div className="space-y-3">
+                                        <label className="flex items-center text-xs font-black text-gray-400 uppercase tracking-[0.2em] ml-1">
+                                            <Users className="w-4 h-4 mr-2 text-indigo-500" /> Số điện thoại liên lạc
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            placeholder="Nhập số điện thoại của bạn"
+                                            className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-500 outline-none transition-all duration-300 font-bold text-gray-700 hover:bg-gray-100/50"
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
+                                        />
+                                    </div>
+
                                     {/* Số hành khách */}
                                     <div className="space-y-3">
                                         <label className="flex items-center text-xs font-black text-gray-400 uppercase tracking-[0.2em] ml-1">
@@ -267,7 +283,7 @@ const CountryDetail = () => {
                                             <span className="text-gray-400 font-bold uppercase tracking-wider">Giá mỗi khách</span>
                                             <span className="font-bold text-gray-700">${price}</span>
                                         </div>
-                                        <div className="flex justify-between items-end">
+                                        <div className="flex justify-between items-end border-b border-dashed border-gray-100 pb-4">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Tổng cộng</span>
                                                 <div className="flex items-center gap-2">
@@ -276,37 +292,78 @@ const CountryDetail = () => {
                                                     </span>
                                                 </div>
                                             </div>
+                                        </div>
+                                        {/* Phần tính tiền cọc 30% */}
+                                        <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 flex justify-between items-center">
+                                            <div>
+                                                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Tiền cọc giữ chỗ (30%)</p>
+                                                <p className="text-xl font-black text-amber-700">${(price * guests * 0.3).toFixed(2)}</p>
+                                            </div>
                                             <div className="text-right">
-                                                <span className="inline-block px-3 py-1 bg-green-100 text-green-600 text-[10px] font-black rounded-full uppercase">Tiết kiệm 5%</span>
+                                                <span className="text-[10px] font-bold text-amber-500 bg-white px-2 py-1 rounded-md shadow-sm">Thanh toán ngay</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <button
-                                        onClick={handleBooking}
-                                        disabled={isBooking}
-                                        className={`group relative w-full py-5 rounded-2xl font-black text-lg transition-all overflow-hidden ${isBooking
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-slate-900 text-white hover:bg-black shadow-2xl shadow-indigo-200 active:scale-[0.98]'
-                                            }`}
-                                    >
-                                        <span className="relative z-10 flex items-center justify-center gap-3">
-                                            {isBooking ? (
-                                                <>
-                                                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                                                    Đang xác nhận...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    🎫 Xác Nhận Đặt Chỗ
-                                                    <ArrowLeft className="w-5 h-5 rotate-180 transition-transform group-hover:translate-x-1" />
-                                                </>
+                                    {bookedData ? (
+                                        <div className="bg-indigo-600 rounded-2xl p-6 text-white space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                            <div className="text-center">
+                                                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                    <Star className="w-6 h-6 text-white" />
+                                                </div>
+                                                <h4 className="font-black text-xl">Đặt tour thành công!</h4>
+                                                <p className="text-indigo-100 text-xs mt-1">Vui lòng hoàn tất đặt cọc 30%</p>
+                                            </div>
+                                            <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 space-y-4">
+                                                <div className="flex justify-between text-xs">
+                                                    <span className="opacity-60">Mã đơn hàng:</span>
+                                                    <span className="font-mono font-bold tracking-widest">{bookedData.bookingCode}</span>
+                                                </div>
+                                                <div className="flex justify-between text-xs">
+                                                    <span className="opacity-60">Số tiền cọc:</span>
+                                                    <span className="font-bold text-amber-300 font-mono">${(bookedData.totalPrice * 0.3).toFixed(2)}</span>
+                                                </div>
+                                                {/* NHÚNG QR CODE VIETQR */}
+                                                <div className="bg-white p-2 rounded-xl shadow-inner">
+                                                    <img 
+                                                        src={`https://img.vietqr.io/image/MB-123456789-compact.png?amount=${(bookedData.totalPrice * 0.3 * 25000)}&addInfo=${bookedData.bookingCode}&accountName=TravelGo%20Booking`}
+                                                        alt="Payment QR Code" 
+                                                        className="w-full h-auto rounded-lg"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="text-[10px] leading-relaxed opacity-80 bg-black/20 p-3 rounded-xl border border-white/5 text-center">
+                                                📌 Quét mã QR trên để chuyển khoản cọc (quy đổi tỷ giá 25k/$). 
+                                                <br/>Nội dung: <strong>{bookedData.bookingCode}</strong>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={handleBooking}
+                                            disabled={isBooking}
+                                            className={`group relative w-full py-5 rounded-2xl font-black text-lg transition-all overflow-hidden ${isBooking
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                : 'bg-slate-900 text-white hover:bg-black shadow-2xl shadow-indigo-200 active:scale-[0.98]'
+                                                }`}
+                                        >
+                                            <span className="relative z-10 flex items-center justify-center gap-3">
+                                                {isBooking ? (
+                                                    <>
+                                                        <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                                        Đang xác nhận...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        🎫 Xác Nhận Đặt Chỗ
+                                                        <ArrowLeft className="w-5 h-5 rotate-180 transition-transform group-hover:translate-x-1" />
+                                                    </>
+                                                )}
+                                            </span>
+                                            {!isBooking && (
+                                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                             )}
-                                        </span>
-                                        {!isBooking && (
-                                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                        )}
-                                    </button>
+                                        </button>
+                                    )}
                                     <p className="text-center text-[10px] text-gray-400 mt-6 font-bold uppercase tracking-widest">
                                         🔒 Thanh toán an toàn qua cổng quốc tế
                                     </p>

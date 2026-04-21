@@ -50,7 +50,7 @@ const CountryList = ({ countries, onEdit, onDelete }) => {
                                 <Pencil className="w-4 h-4 mr-1" /> Sửa
                             </button>
                             <button 
-                                onClick={() => onDelete(country.id)}
+                                onClick={() => onDelete(country)}
                                 className="btn-card-delete"
                             >
                                 <Trash2 className="w-4 h-4 mr-1" /> Xóa
