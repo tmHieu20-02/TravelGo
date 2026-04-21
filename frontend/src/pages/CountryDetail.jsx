@@ -1,46 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom'; // Thêm useNavigate
 import api from '../services/api';
-// Lucide-react cung cấp các icon dạng SVG siêu nhẹ và đẹp
-import { ArrowLeft, Map, Calendar, Sun, Users, Info, Star } from 'lucide-react';
+import { ArrowLeft, Map, Calendar, Sun, Users, Info, Star, Minus, Plus, Clock } from 'lucide-react';
 
-/**
- * COMPONENT: CountryDetail
- * Luồng hoạt động chính:
- * 1. Lấy 'slug' từ thanh địa chỉ (URL) thông qua useParams.
- * 2. Dùng useEffect để tự động gọi API lấy dữ liệu mỗi khi 'slug' thay đổi.
- * 3. Lưu dữ liệu vào state 'country' để hiển thị ra giao diện.
- */
 const CountryDetail = () => {
-    // 1. Lấy THAM SỐ từ URL (Vd: /destination/da-nang -> slug = "da-nang")
-    // Đây là tính năng của React Router để xử lý các trang có nội dung động.
     const { slug } = useParams();
+    const navigate = useNavigate(); // Khởi tạo hook chuyển trang
 
-    // 2. Định nghĩa các TRẠNG THÁI (State)
-    const [country, setCountry] = useState(null); // Lưu thông tin quốc gia
-    const [isLoading, setIsLoading] = useState(true); // Trạng thái đang tải
-    const [error, setError] = useState(''); // Lưu thông tin lỗi nếu có
+    // 1. STATE DỮ LIỆU BẢN ĐỒ
+    const [country, setCountry] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
 
-    // 3. HIỆU ỨNG (Side Effect): Chạy khi component được nạp hoặc khi 'slug' thay đổi
+    // 2. STATE ĐẶT TOUR (Thêm mới)
+    const [guests, setGuests] = useState(1);
+    const [tourDate, setTourDate] = useState('');
+    const [isBooking, setIsBooking] = useState(false);
+    const [bookingMessage, setBookingMessage] = useState(null);
+
+    // FETCH DATA
     useEffect(() => {
         const fetchCountry = async () => {
-            setIsLoading(true); // Bật trạng thái tải
+            setIsLoading(true);
             try {
-                // Gọi API backend với tham số slug
                 const response = await api.get(`/countries/${slug}`);
                 setCountry(response.data);
             } catch (err) {
                 console.error("Lỗi khi lấy chi tiết:", err);
                 setError("Rất tiếc, chúng tôi không tìm thấy điểm đến này.");
             } finally {
-                setIsLoading(false); // Tắt trạng thái tải sau khi xong
+                setIsLoading(false);
             }
         };
         fetchCountry();
-    }, [slug]); // Mảng phụ thuộc [slug] giúp React biết khi nào cần chạy lại hàm này
+    }, [slug]);
 
-    // 4. Giao diện ĐANG TẢI (Loading Shimmer)
-    // Giúp người dùng cảm thấy ứng dụng mượt mà hơn là để màn hình trắng.
+    // 3. HÀM XỬ LÝ ĐẶT TOUR (Thêm mới)
+    const handleBooking = async () => {
+        if (!tourDate) {
+            alert("Vui lòng chọn ngày khởi hành để tiếp tục!");
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("Bạn cần đăng nhập để đặt tour. Chuyển hướng đến trang Đăng nhập...");
+            navigate('/login');
+            return;
+        }
+
+        setIsBooking(true);
+        setBookingMessage(null);
+
+        try {
+            // Dùng api instance của bạn để gọi backend
+            const response = await api.post('/bookings', {
+                countryId: country.id,
+                tourDate: tourDate,
+                guests: guests
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            setBookingMessage({ type: 'success', text: response.data.message || "🎉 Đặt tour thành công!" });
+        } catch (error) {
+            setBookingMessage({ type: 'error', text: error.response?.data?.message || 'Lỗi hệ thống khi đặt tour!' });
+        } finally {
+            setIsBooking(false);
+        }
+    };
+
+    // UI: ĐANG TẢI (Giữ nguyên của bạn)
     if (isLoading) {
         return (
             <div className="min-h-screen bg-slate-50">
@@ -53,7 +83,7 @@ const CountryDetail = () => {
         );
     }
 
-    // 5. Giao diện LỖI (Error State)
+    // UI: LỖI (Giữ nguyên của bạn)
     if (error || !country) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6">
@@ -62,47 +92,35 @@ const CountryDetail = () => {
                 </div>
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Ối! Lạc đường rồi.</h1>
                 <p className="text-gray-500 mb-8 text-center max-w-sm">{error}</p>
-                <Link to="/" className="btn-nav-primary flex items-center">
+                <Link to="/" className="btn-nav-primary flex items-center bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700">
                     <ArrowLeft className="w-5 h-5 mr-2" /> Quay lại trang chủ
                 </Link>
             </div>
         );
     }
 
-    // 6. Xử lý logic HÌNH ẢNH (Giải quyết lỗi "Bể hình")
-    // Ưu tiên ảnh từ Server, nếu không có sẽ lấy ảnh High-res (w=1920) để không bị vỡ.
-    const bannerUrl = country.thumbnail 
+    const bannerUrl = country.thumbnail
         ? (country.thumbnail.startsWith('/uploads') ? `http://localhost:5000${country.thumbnail}` : country.thumbnail)
-        : 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1920&auto=format&fit=crop'; // Fuji high-res làm dự phòng
+        : 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=1920&auto=format&fit=crop';
+
+    const price = country.price || 499; // Giá mặc định nếu DB chưa có
 
     return (
         <div className="min-h-screen bg-white">
-            {/* HERO SECTION: Banner hình ảnh khổ lớn */}
+            {/* HERO SECTION - GIỮ NGUYÊN CỦA BẠN */}
             <div className="relative h-[65vh] md:h-[80vh] w-full overflow-hidden">
-                <img 
-                    src={bannerUrl} 
-                    alt={country.name} 
-                    className="w-full h-full object-cover transform scale-100 hover:scale-105 transition-transform duration-[2000ms]" 
-                />
-                
-                {/* Lớp Overlay Gradient: Tạo độ tương phản cho phần chữ bên dưới */}
+                <img src={bannerUrl} alt={country.name} className="w-full h-full object-cover transform scale-100 hover:scale-105 transition-transform duration-[2000ms]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
-                
                 <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-20">
                     <div className="max-w-7xl mx-auto w-full">
                         <Link to="/" className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-all bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
                             <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại khám phá
                         </Link>
-                        
                         <div className="flex items-center gap-3 mb-4">
                             <div className="h-1 w-12 bg-indigo-500 rounded-full"></div>
                             <span className="text-indigo-400 font-bold tracking-widest uppercase text-sm">Điểm đến hàng đầu</span>
                         </div>
-                        
-                        <h1 className="text-5xl md:text-8xl font-black text-white mb-6 tracking-tight leading-tight">
-                            {country.name}
-                        </h1>
-                        
+                        <h1 className="text-5xl md:text-8xl font-black text-white mb-6 tracking-tight leading-tight">{country.name}</h1>
                         <div className="flex flex-wrap items-center gap-6 text-white/90">
                             <div className="flex items-center bg-black/30 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
                                 <Star className="w-5 h-5 text-amber-400 fill-amber-400 mr-2" />
@@ -118,11 +136,11 @@ const CountryDetail = () => {
                 </div>
             </div>
 
-            {/* CONTENT SECTION: Nội dung chia 2 cột */}
+            {/* CONTENT SECTION */}
             <div className="max-w-7xl mx-auto px-6 py-20">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-                    
-                    {/* Cột Trái (8/12): Thông tin chi tiết */}
+
+                    {/* Cột Trái: Thông tin chi tiết - GIỮ NGUYÊN */}
                     <div className="lg:col-span-8">
                         <div className="mb-12">
                             <h2 className="text-3xl font-black text-gray-900 mb-8 inline-block relative">
@@ -134,7 +152,6 @@ const CountryDetail = () => {
                             </p>
                         </div>
 
-                        {/* Dummy Section: Thêm phần thông tin ảo để trang trông "xịn" hơn */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 bg-slate-50 p-8 rounded-3xl border border-gray-100">
                             <div>
                                 <h4 className="font-bold text-gray-900 mb-4 flex items-center">
@@ -157,12 +174,13 @@ const CountryDetail = () => {
                         </div>
                     </div>
 
-                    {/* Cột Phải (4/12): Sidebar đặt chỗ & Thông số nhanh */}
+                    {/* Cột Phải: KẾ HOẠCH ĐI & BOOKING FORM (Đã Nâng Cấp) */}
                     <div className="lg:col-span-4">
                         <div className="sticky top-28 space-y-8">
                             <div className="bg-white rounded-[2rem] shadow-2xl p-8 border border-gray-100 transform transition-transform hover:scale-[1.02]">
                                 <h3 className="text-2xl font-black text-gray-900 mb-8">Kế Hoạch Đi</h3>
-                                
+
+                                {/* Widget Thông tin phụ */}
                                 <div className="space-y-6">
                                     <div className="flex items-center p-4 bg-orange-50 rounded-2xl">
                                         <Sun className="w-10 h-10 text-orange-500 mr-4 p-2 bg-white rounded-xl shadow-sm" />
@@ -181,25 +199,126 @@ const CountryDetail = () => {
                                     </div>
                                 </div>
 
-                                <div className="mt-10 pt-8 border-t border-gray-100">
-                                    <div className="flex justify-between items-end mb-6">
-                                        <span className="text-gray-500 font-medium">Giá tour tham khảo</span>
-                                        <span className="text-3xl font-black text-indigo-600">$499<span className="text-sm font-normal text-gray-400">/khách</span></span>
+                                {/* Form Nhập Ngày và Số Người (Phần Mới - Cao Cấp) */}
+                                <div className="mt-8 pt-8 border-t border-gray-100 space-y-6">
+                                    {bookingMessage && (
+                                        <div className={`p-4 rounded-2xl text-sm font-bold text-center animate-bounce ${bookingMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            {bookingMessage.type === 'success' ? '✨ ' : '❌ '} {bookingMessage.text}
+                                        </div>
+                                    )}
+
+                                    {/* Ngày khởi hành */}
+                                    <div className="space-y-3">
+                                        <label className="flex items-center text-xs font-black text-gray-400 uppercase tracking-[0.2em] ml-1">
+                                            <Calendar className="w-4 h-4 mr-2 text-indigo-500" /> Ngày khởi hành
+                                        </label>
+                                        <div className="relative group">
+                                            <input
+                                                type="date"
+                                                className="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-indigo-500 outline-none transition-all duration-300 font-bold text-gray-700 group-hover:bg-gray-100/50"
+                                                value={tourDate}
+                                                onChange={(e) => setTourDate(e.target.value)}
+                                            />
+                                            <div className="absolute inset-0 rounded-2xl border-2 border-indigo-500/0 group-focus-within:border-indigo-500/100 pointer-events-none transition-all duration-500"></div>
+                                        </div>
                                     </div>
-                                    
-                                    <button className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3">
-                                        Đặt Hành Trình Ngay
-                                    </button>
-                                    <p className="text-center text-xs text-gray-400 mt-4 font-medium">Bảo đảm giá tốt nhất - Hoàn tiền 100%</p>
+
+                                    {/* Số hành khách */}
+                                    <div className="space-y-3">
+                                        <label className="flex items-center text-xs font-black text-gray-400 uppercase tracking-[0.2em] ml-1">
+                                            <Users className="w-4 h-4 mr-2 text-indigo-500" /> Số lượng khách
+                                        </label>
+                                        <div className="flex items-center justify-between p-2 bg-gray-50 rounded-2xl border-2 border-transparent hover:bg-gray-100/50 transition-colors group focus-within:border-indigo-500">
+                                            <button
+                                                onClick={() => setGuests(prev => Math.max(1, prev - 1))}
+                                                className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-gray-400 hover:text-indigo-600 hover:shadow-md transition-all active:scale-95"
+                                            >
+                                                <Minus className="w-5 h-5" />
+                                            </button>
+
+                                            <div className="text-center">
+                                                <span className="block text-2xl font-black text-gray-800">{guests}</span>
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase">Khách</span>
+                                            </div>
+
+                                            <button
+                                                onClick={() => setGuests(prev => Math.min(20, prev + 1))}
+                                                className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-gray-400 hover:text-indigo-600 hover:shadow-md transition-all active:scale-95"
+                                            >
+                                                <Plus className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Thông tin thời lượng (Thêm mới) */}
+                                    <div className="flex items-center justify-between p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
+                                        <div className="flex items-center">
+                                            <Clock className="w-5 h-5 text-indigo-500 mr-3" />
+                                            <span className="text-sm font-bold text-indigo-900">Thời lượng dự kiến</span>
+                                        </div>
+                                        <span className="text-sm font-black text-indigo-600">4 Ngày 3 Đêm</span>
+                                    </div>
                                 </div>
+
+                                {/* Tổng Tiền và Nút Chốt Đơn */}
+                                <div className="mt-8 pt-8 border-t border-gray-100">
+                                    <div className="space-y-4 mb-8">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-gray-400 font-bold uppercase tracking-wider">Giá mỗi khách</span>
+                                            <span className="font-bold text-gray-700">${price}</span>
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Tổng cộng</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                                                        ${price * guests}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="inline-block px-3 py-1 bg-green-100 text-green-600 text-[10px] font-black rounded-full uppercase">Tiết kiệm 5%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={handleBooking}
+                                        disabled={isBooking}
+                                        className={`group relative w-full py-5 rounded-2xl font-black text-lg transition-all overflow-hidden ${isBooking
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                            : 'bg-slate-900 text-white hover:bg-black shadow-2xl shadow-indigo-200 active:scale-[0.98]'
+                                            }`}
+                                    >
+                                        <span className="relative z-10 flex items-center justify-center gap-3">
+                                            {isBooking ? (
+                                                <>
+                                                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                                    Đang xác nhận...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    🎫 Xác Nhận Đặt Chỗ
+                                                    <ArrowLeft className="w-5 h-5 rotate-180 transition-transform group-hover:translate-x-1" />
+                                                </>
+                                            )}
+                                        </span>
+                                        {!isBooking && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                        )}
+                                    </button>
+                                    <p className="text-center text-[10px] text-gray-400 mt-6 font-bold uppercase tracking-widest">
+                                        🔒 Thanh toán an toàn qua cổng quốc tế
+                                    </p>
+                                </div>
+
                             </div>
                         </div>
                     </div>
 
                 </div>
             </div>
-            
-            {/* Footer đơn giản */}
+
             <div className="bg-gray-50 border-t border-gray-100 py-12 text-center">
                 <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">&copy; 2026 TravelGo Experience - Make your life better</p>
             </div>
@@ -208,4 +327,3 @@ const CountryDetail = () => {
 };
 
 export default CountryDetail;
-

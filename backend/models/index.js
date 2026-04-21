@@ -1,14 +1,22 @@
 const sequelize = require('../config/database');
-const User = require('./User'); // Import model User bạn đã tạo
+const User = require('./User');
 const Country = require('./Country');
+const Booking = require('./Booking');
 
-// Tạo một object db để chứa mọi thứ liên quan đến database
-const db = {};
+const db = {
+    sequelize,
+    User,
+    Country,
+    Booking
+};
 
-db.sequelize = sequelize; // Lưu lại kết nối
-db.User = User; // Đưa Model User vào object
-db.Country = Country;
+// Thiết lập Quan hệ (Associations)
+// 1-N: Một User có nhiều Booking
+db.User.hasMany(db.Booking, { foreignKey: 'userId', as: 'bookings' });
+db.Booking.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
 
-// (Sau này chúng ta sẽ viết code liên kết các bảng ở đây)
+// 1-N: Một Country có nhiều Booking
+db.Country.hasMany(db.Booking, { foreignKey: 'countryId', as: 'bookings' });
+db.Booking.belongsTo(db.Country, { foreignKey: 'countryId', as: 'country' });
 
 module.exports = db;

@@ -6,6 +6,7 @@ const mysql = require('mysql2/promise'); // Thêm dòng này để kết nối t
 const db = require('./models/index');
 const userRoutes = require('./routes/userRoutes');
 const countryRoutes = require('./routes/countryRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 const app = express();
 app.use(cors()); // Cho phép Frontend (Vite) gọi API
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/users', userRoutes);
 app.use('/api/countries', countryRoutes);
+app.use('/api/bookings', bookingRoutes);
 const PORT = process.env.PORT || 5000;
 
 // 1. Hàm tự động kiểm tra và tạo Database trước

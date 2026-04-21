@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import CountryList from '../components/Country/CountryList';
-import { 
+import {
     Compass, Users, Globe, Heart,
     Share2, Send, MessageCircle, MapPin, Star
 } from 'lucide-react';
@@ -30,14 +30,14 @@ const HomePage = () => {
             {/* 1. HERO SECTION - CẢM HỨNG */}
             <div className="hero-section relative min-h-[70vh] flex items-center justify-center overflow-hidden">
                 <div className="hero-image-wrapper">
-                    <img 
-                        src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop" 
-                        alt="Mount Fuji Landscape" 
-                        className="hero-image scale-105" 
+                    <img
+                        src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"
+                        alt="Mount Fuji Landscape"
+                        className="hero-image scale-105"
                     />
                 </div>
                 <div className="absolute inset-0 bg-black/30"></div> {/* Lớp phủ tối nhẹ */}
-                
+
                 <div className="hero-content relative z-10 text-center max-w-4xl px-4">
                     <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 text-white text-sm font-bold mb-6 animate-bounce">
                         <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
@@ -86,20 +86,14 @@ const HomePage = () => {
             <section className="py-24 max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     <div className="relative">
-                        <img 
-                            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop" 
-                            alt="Discovery" 
-                            className="rounded-[3rem] shadow-2xl object-cover h-[500px] w-full" 
+                        <img
+                            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop"
+                            alt="Discovery"
+                            className="rounded-[3rem] shadow-2xl object-cover h-[500px] w-full"
                         />
                         <div className="absolute -bottom-8 -right-8 glass-card p-6 rounded-3xl hidden md:block">
                             <div className="flex items-center gap-4">
-                                <div className="p-4 bg-indigo-600 rounded-2xl text-white">
-                                    <Heart className="w-8 h-8 fill-white" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold text-gray-500 uppercase">Tỉ lệ quay lại</p>
-                                    <p className="text-2xl font-black text-gray-900">92%</p>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -113,7 +107,7 @@ const HomePage = () => {
                             ].map((item, i) => (
                                 <div key={i} className="flex gap-4 p-6 rounded-3xl hover:bg-indigo-50 transition-colors group cursor-pointer">
                                     <div className="h-10 w-10 flex-shrink-0 bg-white shadow-md rounded-xl flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all font-black">
-                                        {i+1}
+                                        {i + 1}
                                     </div>
                                     <div>
                                         <h4 className="text-lg font-bold text-gray-900 mb-1">{item.t}</h4>
@@ -132,15 +126,15 @@ const HomePage = () => {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                         <div>
-                             <span className="text-3xl font-black text-gray-800 tracking-tight mb-6 block">TRAVEL<span className="text-indigo-600">GO</span></span>
-                             <p className="text-gray-500 mb-6 leading-relaxed">Sứ mệnh của chúng tôi là biến mọi kỳ nghỉ của bạn trở thành những kỷ niệm vô giá xuyên suốt cuộc đời.</p>
-                             <div className="flex gap-4">
+                            <span className="text-3xl font-black text-gray-800 tracking-tight mb-6 block">TRAVEL<span className="text-indigo-600">GO</span></span>
+                            <p className="text-gray-500 mb-6 leading-relaxed">Sứ mệnh của chúng tôi là biến mọi kỳ nghỉ của bạn trở thành những kỷ niệm vô giá xuyên suốt cuộc đời.</p>
+                            <div className="flex gap-4">
                                 {[Share2, Globe, Send, MessageCircle].map((Icon, i) => (
                                     <a key={i} href="#" className="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 hover:bg-indigo-600 hover:text-white transition-all">
                                         <Icon className="w-5 h-5" />
                                     </a>
                                 ))}
-                             </div>
+                            </div>
                         </div>
                         <div>
                             <h4 className="font-black text-gray-900 mb-6 uppercase tracking-widest text-sm">Điểm Đến</h4>

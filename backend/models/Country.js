@@ -16,6 +16,10 @@ const Country = sequelize.define('Country', {
     },
     thumbnail: {
         type: DataTypes.STRING, // Lưu đường dẫn hình ảnh
+    },
+    price: {
+        type: DataTypes.INTEGER,
+        defaultValue: 499, // Giá mặc định nếu không nhập
     }
 }, {
     timestamps: true // Tự động tạo cột createdAt, updatedAt
