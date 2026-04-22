@@ -68,42 +68,41 @@ const AdminCountryPage = () => {
     }, [countries, searchTerm]);
 
     return (
-        <div className="page-admin-container bg-gray-50 min-h-screen p-4 md:p-8">
-            {/* Khởi tạo Toaster ở root của trang */}
+        <div className="page-container">
             <Toaster position="top-right" reverseOrder={false} />
 
             <div className="max-w-7xl mx-auto">
-                <header className="admin-header mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <header className="admin-header-box">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800 flex items-center">
-                            <Globe2 className="w-7 h-7 mr-3 text-blue-600" />
-                            Quản lý Dữ liệu Tour
-                        </h1>
-                        <p className="text-gray-500 mt-2 text-sm">Thêm, sửa, xóa và quản lý các điểm đến trong hệ thống.</p>
+                        <h1 className="admin-title-h1">Quản lý Điểm đến</h1>
+                        <p className="admin-subtitle">Hệ thống quản lý dữ liệu tour du lịch TravelGo chuyên nghiệp.</p>
                     </div>
 
-                    {/* Thanh tìm kiếm */}
-                    <div className="relative w-full md:w-80">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-5 w-5 text-gray-400" />
-                        </div>
+                    <div className="search-wrapper">
+                        <Search className="search-icon" />
                         <input
                             type="text"
-                            className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
-                            placeholder="Tìm kiếm điểm đến..."
+                            className="search-input"
+                            placeholder="Tìm kiếm nhanh điểm đến..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
                 </header>
 
-                <div className="admin-grid-layout grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Cột trái: Form (dùng sticky để cuộn không bị mất form) */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6">
-                            <h2 className="text-lg font-bold text-gray-800 mb-5 border-b pb-3">
-                                {editingCountry ? 'Chỉnh sửa điểm đến' : 'Thêm điểm đến mới'}
-                            </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    {/* Cột trái: Form */}
+                    <div className="lg:col-span-4">
+                        <div className="card-professional p-8 sticky top-28">
+                            <div className="flex items-center gap-3 mb-8 border-b border-slate-100 pb-4">
+                                <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                    <Globe2 className="w-5 h-5" />
+                                </div>
+                                <h2 className="text-xl font-extrabold text-slate-800">
+                                    {editingCountry ? 'Sửa thông tin' : 'Thêm mới'}
+                                </h2>
+                            </div>
+                            
                             <CountryForm
                                 onCountryAdded={() => {
                                     fetchCountries();
@@ -116,67 +115,73 @@ const AdminCountryPage = () => {
                     </div>
 
                     {/* Cột phải: Danh sách */}
-                    <div className="lg:col-span-2">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 min-h-[500px]">
+                    <div className="lg:col-span-8">
+                        <div className="card-professional p-1 overflow-hidden min-h-[600px]">
                             {isLoading ? (
-                                // Loading State
-                                <div className="flex flex-col justify-center h-full items-center text-gray-500 space-y-4 py-20">
-                                    <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                                    <p className="font-medium">Đang tải dữ liệu...</p>
+                                <div className="state-container py-40">
+                                    <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+                                    <p className="font-bold text-slate-500 animate-pulse-subtle">Đang đồng bộ dữ liệu hệ thống...</p>
                                 </div>
                             ) : filteredCountries.length === 0 ? (
-                                // Empty State
-                                <div className="flex flex-col justify-center h-full items-center text-gray-400 py-20">
-                                    <div className="bg-gray-50 p-4 rounded-full mb-4">
-                                        <Globe2 className="w-12 h-12 text-gray-300" />
+                                <div className="state-container py-32">
+                                    <div className="state-icon-bg">
+                                        <Search className="w-10 h-10 text-slate-300" />
                                     </div>
-                                    <p className="text-lg font-medium text-gray-600">Không tìm thấy dữ liệu</p>
-                                    <p className="text-sm mt-1 text-gray-400">
-                                        {searchTerm ? 'Thử tìm với từ khóa khác xem sao.' : 'Hệ thống hiện chưa có điểm đến nào.'}
+                                    <h3 className="text-xl font-extrabold text-slate-800">Không tìm thấy kết quả</h3>
+                                    <p className="text-slate-500 max-w-xs mx-auto">
+                                        {searchTerm ? `Chúng tôi không tìm thấy điểm đến nào khớp với "${searchTerm}".` : 'Hệ thống hiện chưa có dữ liệu điểm đến.'}
                                     </p>
+                                    {searchTerm && (
+                                        <button 
+                                            onClick={() => setSearchTerm('')}
+                                            className="text-indigo-600 font-bold hover:underline mt-2"
+                                        >
+                                            Xóa tìm kiếm
+                                        </button>
+                                    )}
                                 </div>
                             ) : (
-                                // Data State
-                                <CountryList
-                                    countries={filteredCountries}
-                                    onEdit={(country) => {
-                                        setEditingCountry(country);
-                                        // Tự động scroll mượt lên đầu trang để admin thấy form edit
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }}
-                                    onDelete={handleDeleteClick} // Truyền hàm mở Modal
-                                />
+                                <div className="p-4">
+                                    <CountryList
+                                        countries={filteredCountries}
+                                        onEdit={(country) => {
+                                            setEditingCountry(country);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        onDelete={handleDeleteClick}
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Modal Xác nhận Xóa (Custom UI) */}
+            {/* Modal Xác nhận Xóa chuyên nghiệp */}
             {isDeleteModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity">
-                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 transform transition-all animate-in fade-in zoom-in-95 duration-200">
+                <div className="modal-overlay">
+                    <div className="modal-content">
                         <div className="flex flex-col items-center text-center">
-                            <div className="flex items-center justify-center w-14 h-14 bg-red-100 rounded-full mb-4">
-                                <AlertTriangle className="w-7 h-7 text-red-600" />
+                            <div className="w-20 h-20 bg-red-50 rounded-[2rem] flex items-center justify-center mb-6">
+                                <AlertTriangle className="w-10 h-10 text-red-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Xác nhận xóa dữ liệu</h3>
-                            <p className="text-base text-gray-500 mb-6">
-                                Bạn có chắc chắn muốn xóa <strong className="text-gray-800">{countryToDelete?.name}</strong>?
-                                Hành động này không thể hoàn tác.
+                            <h3 className="text-2xl font-extrabold text-slate-900 mb-3">Xác nhận xóa</h3>
+                            <p className="text-slate-500 mb-8 leading-relaxed">
+                                Bạn có chắc chắn muốn gỡ bỏ <strong className="text-slate-900 font-extrabold">"{countryToDelete?.name}"</strong> khỏi hệ thống? 
+                                <br/><span className="text-sm text-red-500 font-medium">Hành động này không thể khôi phục.</span>
                             </p>
-                            <div className="flex w-full gap-3">
+                            <div className="flex w-full gap-4">
                                 <button
                                     onClick={() => setIsDeleteModalOpen(false)}
-                                    className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                                    className="btn-secondary flex-1"
                                 >
                                     Hủy bỏ
                                 </button>
                                 <button
                                     onClick={executeDelete}
-                                    className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 border border-transparent rounded-xl hover:bg-red-700 transition-colors shadow-sm shadow-red-200"
+                                    className="btn-danger flex-1"
                                 >
-                                    Xóa ngay
+                                    Xác nhận xóa
                                 </button>
                             </div>
                         </div>

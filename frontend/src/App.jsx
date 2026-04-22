@@ -7,6 +7,7 @@ import AdminCountryPage from './pages/AdminCountryPage';
 import AdminBookingPage from './pages/AdminBookingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import MyTripsPage from './pages/MyTripsPage';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute'; // Import component bảo vệ
 
@@ -29,6 +30,12 @@ function App() {
         <Route path="/admin/bookings" element={
           <ProtectedRoute requireAdmin={true}>
             <AdminBookingPage />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/my-trips" element={
+          <ProtectedRoute>
+            <MyTripsPage />
           </ProtectedRoute>
         } />
         

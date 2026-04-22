@@ -5,6 +5,7 @@ const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 
 router.post('/', verifyToken, bookingController.createBooking);
 router.get('/my-bookings', verifyToken, bookingController.getMyBookings);
+router.patch('/:id/cancel', verifyToken, bookingController.cancelBooking);
 
 // API cho Admin quản lý
 router.get('/', verifyToken, isAdmin, bookingController.getAllBookings);

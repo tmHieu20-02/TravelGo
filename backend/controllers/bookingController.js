@@ -120,3 +120,29 @@ exports.updateBookingStatus = async (req, res) => {
         res.status(500).json({ message: "Lỗi khi cập nhật trạng thái đơn hàng" });
     }
 };
+
+// Người dùng tự hủy đơn hàng
+exports.cancelBooking = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const booking = await Booking.findOne({ where: { id, userId } });
+        
+        if (!booking) {
+            return res.status(404).json({ message: "Không tìm thấy đơn hàng của bạn" });
+        }
+
+        if (booking.status !== 'pending') {
+            return res.status(400).json({ message: "Chỉ có thể hủy đơn hàng đang ở trạng thái Chờ duyệt" });
+        }
+
+        booking.status = 'cancelled';
+        await booking.save();
+
+        res.status(200).json({ message: "Đã hủy đơn hàng thành công", booking });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Lỗi khi hủy đơn hàng" });
+    }
+};

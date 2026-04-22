@@ -91,65 +91,59 @@ const CountryForm = ({ onCountryAdded, editingCountry, setEditingCountry }) => {
     };
 
     return (
-        <div className="admin-form-card">
-            <h2 className={`text-xl font-bold mb-4 flex items-center ${editingCountry ? 'text-amber-600' : 'text-gray-800'}`}>
-                {editingCountry ? (
-                    <><Pencil className="w-5 h-5 mr-2" /> Cập Nhật Quốc Gia</>
-                ) : (
-                    <><Plus className="w-5 h-5 mr-2 text-indigo-500" /> Thêm Quốc Gia Mới</>
-                )}
-            </h2>
-            
-            {errorMsg && <div className="p-3 mb-4 text-sm text-red-600 bg-red-50 rounded-lg">{errorMsg}</div>}
+        <div className="space-y-6">
+            {errorMsg && <div className="p-4 mb-6 text-sm font-bold text-red-600 bg-red-50 border border-red-100 rounded-xl">{errorMsg}</div>}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 gap-6">
+                    <div className="form-group">
                         <label className="form-label">Tên Quốc Gia <span className="text-red-500">*</span></label>
-                        <input type="text" required value={name} onChange={e => setName(e.target.value)} className="form-input-field" placeholder="Ví dụ: Việt Nam" />
+                        <input type="text" required value={name} onChange={e => setName(e.target.value)} className="form-input" placeholder="Ví dụ: Việt Nam" />
                     </div>
-                    <div>
+                    <div className="form-group">
                         <label className="form-label">Slug <span className="text-red-500">*</span></label>
-                        <input type="text" required value={slug} onChange={e => setSlug(e.target.value)} className="form-input-field" placeholder="viet-nam" />
+                        <input type="text" required value={slug} onChange={e => setSlug(e.target.value)} className="form-input" placeholder="viet-nam" />
                     </div>
                 </div>
 
-                <div>
+                <div className="form-group">
                     <label className="form-label">Mô tả chi tiết</label>
-                    <textarea rows="3" value={description} onChange={e => setDescription(e.target.value)} className="form-input-field" placeholder="Nhập một vài dòng giới thiệu..." />
+                    <textarea rows="4" value={description} onChange={e => setDescription(e.target.value)} className="form-input" placeholder="Nhập một vài dòng giới thiệu chuyên nghiệp..." />
                 </div>
 
                 {/* Phần Upload Hình ảnh */}
-                <div>
-                    <label className="form-label">Hình thu nhỏ (Upload Ảnh)</label>
-                    <div className="flex items-center justify-center w-full">
-                        <label htmlFor="thumbnail-upload" className="upload-image-dropzone">
-                            {/* Hiển thị ảnh cũ nếu đang edit mà chưa chọn file mới */}
+                <div className="form-group">
+                    <label className="form-label">Hình ảnh đại diện</label>
+                    <div className="relative group">
+                        <label htmlFor="thumbnail-upload" className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer bg-slate-50 hover:bg-slate-100 hover:border-indigo-300 transition-all overflow-hidden relative">
                             {editingCountry && editingCountry.thumbnail && !thumbnailFile && (
                                 <img 
                                     src={editingCountry.thumbnail.startsWith('/uploads') ? `http://localhost:5000${editingCountry.thumbnail}` : editingCountry.thumbnail}
-                                    className="absolute inset-0 w-full h-full object-cover opacity-30" 
+                                    className="absolute inset-0 w-full h-full object-cover opacity-20" 
+                                    alt="Current thumbnail"
                                 />
                             )}
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
-                                <UploadCloud className="w-8 h-8 mb-2 text-gray-500" />
-                                <p className="mb-2 text-sm text-gray-500 text-center"><span className="font-semibold">{thumbnailFile ? thumbnailFile.name : (editingCountry && editingCountry.thumbnail ? 'Chọn ảnh mới để thay thế' : 'Bấm để tải ảnh lên')}</span></p>
-                                <p className="text-xs text-gray-400">PNG, JPG or WEBP</p>
+                            <div className="flex flex-col items-center justify-center py-6 relative z-10">
+                                <UploadCloud className="w-10 h-10 mb-3 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                                <p className="text-sm font-bold text-slate-600">
+                                    {thumbnailFile ? thumbnailFile.name : (editingCountry && editingCountry.thumbnail ? 'Thay đổi ảnh' : 'Tải ảnh lên')}
+                                </p>
+                                <p className="text-xs text-slate-400 mt-1">Khuyên dùng: 1200x800px</p>
                             </div>
                             <input id="thumbnail-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
                         </label>
                     </div>
                 </div>
 
-                <div className="flex justify-end pt-2 gap-3">
+                <div className="flex flex-col gap-3 pt-4">
+                    <button type="submit" disabled={isLoading} className="btn-primary w-full">
+                        {isLoading ? 'Đang xử lý...' : (editingCountry ? 'Lưu thay đổi' : 'Tạo mới điểm đến')}
+                    </button>
                     {editingCountry && (
-                        <button type="button" onClick={() => setEditingCountry(null)} disabled={isLoading} className="btn-modal-cancel">
-                            Hủy Cập Nhật
+                        <button type="button" onClick={() => setEditingCountry(null)} disabled={isLoading} className="btn-secondary w-full">
+                            Hủy chỉnh sửa
                         </button>
                     )}
-                    <button type="submit" disabled={isLoading} className={`${editingCountry ? 'btn-submit-warning' : 'btn-submit-primary'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                        {isLoading ? 'Đang lưu...' : (editingCountry ? 'Lưu Cập Nhật' : 'Lưu Quốc Gia')}
-                    </button>
                 </div>
             </form>
         </div>
